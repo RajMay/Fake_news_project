@@ -48,7 +48,7 @@ def detect_fake_news():
     try:
         # Make the prediction
         prediction = model.predict(input_vector)
-        result = 'Fake' if prediction[0] == 1 else 'Real'
+        result = ' Fake' if prediction[0] == 1 else 'Real'
         return jsonify({'prediction': result})
     except Exception as e:
         return jsonify({'error': 'An error occurred during prediction', 'details': str(e)}), 500

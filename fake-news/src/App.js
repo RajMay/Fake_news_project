@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Slider from 'react-slick';
 import './App.css';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
+
 
 function App() {
   const [inputText, setInputText] = useState('');
   const [prediction, setPrediction] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Handle input change
   const handleInputChange = (e) => {
     setInputText(e.target.value);
   };
 
-  // Function to send the input text to the Flask backend using axios
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
@@ -21,43 +25,113 @@ function App() {
 
     try {
       const response = await axios.post('http://127.0.0.1:5000/detect', {
-        text: inputText
+        text: inputText,
       });
-
-      // Handle success response
       setPrediction(response.data.prediction);
     } catch (err) {
-      // Handle error response
       setError('Failed to connect to the server. Please make sure the backend is running.');
     } finally {
       setLoading(false);
     }
   };
 
+  const tips = [
+    'Tip 1: Cross-check news with multiple sources!',
+    'Tip 2: Always verify the credibility of the website.',
+    'Tip 3: Fake news is often sensational.',
+    'Tip 4: Images and videos can be manipulated.',
+  ];
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 4000,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    arrows: false,
+  };
+
   return (
     <div className="App">
-      <h1>Fake News Detection</h1>
+      {/* Sidebar */}
+      <nav className={`sidebar ${isSidebarOpen ? '' : 'hidden'}`}>
+        <h2>VicHaarSamPark..</h2>
+        <ul>
+          <li>Home</li>
+          <li>About</li>
+          <li>Contact</li>
+        </ul>
+      </nav>
 
-      {/* Text area to input news text */}
-      <textarea
-        value={inputText}
-        onChange={handleInputChange}
-        placeholder="Enter news text"
-        rows="10"
-        cols="50"
-      />
+      <div className="main-wrapper">
+        {/* Carousel of Tips */}
+        <div className="carousel-container">
+          <Slider {...sliderSettings}>
+            {tips.map((tip, index) => (
+              <div key={index} className="tip-slide">
+                <h3>{tip}</h3>
+              </div>
+            ))}
+          </Slider>
+        </div>
 
-      {/* Button to submit the input */}
-      <br />
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Checking...' : 'Check News'}
-      </button>
+        <main className="main-content">
+          <div className="input-container">
+            <h2>Verify News Authenticity</h2>
+            <textarea
+              value={inputText}
+              onChange={handleInputChange}
+              placeholder="Paste the news article here..."
+              rows="8"
+              cols="80"
+              className="news-input"
+            />
+            <button onClick={handleSubmit} disabled={loading} className="submit-btn">
+              {loading ? 'Checking...' : 'Analyse'}
+            </button>
+            {loading && <div className="loader"></div>}
+          </div>
 
-      {/* Display the prediction result */}
-      {prediction && <p>Prediction: {prediction}</p>}
-      
-      {/* Display error message if any */}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+          {prediction && (
+            <div className="result-container">
+              <div className="result-card">
+                <h3>Prediction:</h3>
+                <p>{prediction}</p>
+              </div>
+            </div>
+          )}
+
+          {error && <p className="error-message">{error}</p>}
+        </main>
+
+        <section className="card-section">
+          <div className="card-container">
+            <div className="card">
+              <h3>How it Works</h3>
+              <p>Learn how our Fake News Detector works with advanced AI algorithms to spot misinformation.</p>
+              <button>Learn More</button>
+            </div>
+
+            <div className="card">
+              <h3>Report Fake News</h3>
+              <p>Submit any suspicious news article for review by our team of experts.</p>
+              <button>Report Now</button>
+            </div>
+
+            <div className="card">
+              <h3>Upgrade for Premium</h3>
+              <p>Access premium features with enhanced AI accuracy and more detailed reports.</p>
+              <button>Upgrade</button>
+            </div>
+          </div>
+        </section>
+
+        <footer>
+          <p>© 2024 Fake News Detection. All rights reserved.</p>
+        </footer>
+      </div>
     </div>
   );
 }
